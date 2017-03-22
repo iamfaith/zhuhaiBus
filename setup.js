@@ -56,7 +56,7 @@ export default class setup extends BaseComponent {
             return;
         }
 
-        if (!Validate.checkNum(this.state.text)) {
+        if (!Validate.checkNumAndLetter(this.state.text)) {
             this.toastRef.showToast(Define.String.INPUT_INVALID);
             return;
         }
@@ -120,13 +120,16 @@ export default class setup extends BaseComponent {
 
             this.state.dataSource = this.state.dataSource.cloneWithRows(this.cache),
                 this.setState(this.state.dataSource);
-
-            let lineName = this.state.text + "路";
+            let lineName = this.state.text;
+            lineName = lineName.toUpperCase();
+            if (Validate.checkNum(lineName))
+                lineName = lineName + "路";
             let fromStation = callback.fromStation;
 
             param.busName = lineName;
 
             const data = {lineName: lineName, fromStation: fromStation};
+            console.log(data);
             this.doGet(BusQry.qryBusInfo(data), {
                 op: setup.OP.BUS_INFO_QRY,
                 param: param,

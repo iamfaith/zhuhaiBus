@@ -39,14 +39,25 @@ export default class Header extends Component {
         this.setState(this.state);
     }
 
-    render() {
-        return (
-            <View style={styles.container}>
+
+    renderHeader() {
+        if (this.state.visible) {
+            return (
+                <View style={styles.container}>
                     <Text style={styles.headerText}>{this.state.busName + this.state.workingBus}</Text>
                     <Text style={styles.directionText}>{this.state.fromStation} => {this.state.toStation}</Text>
                     <Text style={styles.busInfo}>{this.state.busInfo}</Text>
-            </View>
-        )
+                </View>);
+        } else {
+            return null;
+        }
+    }
+
+    render() {
+        return (<View>
+            {this.renderHeader()}
+        </View>);
+
     }
 
 
