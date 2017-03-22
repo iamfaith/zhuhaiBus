@@ -1,3 +1,6 @@
+/**
+ * Created by faith on 2017/3/22.
+ */
 import React from
     'react';
 import {
@@ -22,7 +25,7 @@ import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from './js/component/Header'
 
-export default class setup extends BaseComponent {
+export default class RealTimeSearch extends BaseComponent {
 
     static OP = {
         STATION_QRY: '1',
