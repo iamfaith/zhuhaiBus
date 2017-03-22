@@ -19,7 +19,7 @@ export default class Define {
         SEARCH:'查询',
         CHANGE_LINE:'切换',
         SEARCH_FIRST: '请先点击查询再进行切换路线',
-        WORKING_BUS: '`({busSum}辆公交在行驶中)`',
-        BUS_INFO: '`首班车: {busInfo.beginTime} 末班车: {busInfo.endTime} 票价: {busInfo.price}元`'
+        // WORKING_BUS: `(${busSum}辆公交在行驶中)`,
+        // BUS_INFO: `首班车: ${busInfo.beginTime} 末班车: {$busInfo.endTime} 票价: {busInfo.price}元`
     }
 }

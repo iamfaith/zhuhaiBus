@@ -1,7 +1,9 @@
 /**
  * Created by faith on 2017/3/20.
  */
-import React, {Component} from 'react-native';
+import React, {
+    Component,
+} from 'react';
 import Toast from 'react-native-root-toast';
 
 export default class BaseToast extends Component {
@@ -15,14 +17,24 @@ export default class BaseToast extends Component {
         };
     }
 
-    componentDidMount() {
+    hideToast() {
         setTimeout(() => {
             this.state.toast = {
                 visible: false,
             };
             this.setState(this.state);
-        }, 600);
-    };
+        }, 800);
+    }
+
+    showToast(msg, isHidden = true) {
+        this.state.toast = {
+            visible: true,
+            msg: msg,
+        };
+        this.setState(this.state);
+        if (isHidden)
+            this.hideToast();
+    }
 
     render() {
         return (<Toast

@@ -14,7 +14,7 @@ import  BusQry from './js/service/BusQry'
 import  BaseComponent from './js/common/BaseComponent'
 import  Define from './js/common/Define'
 import  BusStation from './js/model/BusStation'
-import Toast from 'react-native-root-toast'
+import Toast from './js/component/Toast'
 import Validate from './js/util/Validate'
 import HashMap from './js/common/HashMap'
 
@@ -45,56 +45,19 @@ export default class setup extends BaseComponent {
             }),
             text: '',
             stations: [],
-            toast: {
-                visible: false,
-                msg: '',
-            }
+
         }
     }
 
-    _updateHeader(param) {
-        let busSum = param.busSum;
-        let busInfo = {
-            beginTime: param.beginTime,
-            endTime: param.endTime,
-            price: param.price,
-        }
-        this.state.workingBus = Define.String.WORKING_BUS;
-        this.state.busInfo = Define.String.BUS_INFO;
-
-        this.state.busName = param.busName;
-        this.state.fromStation = param.fromStation;
-        this.state.toStation = param.toStation;
-
-    }
-
-    hideToast() {
-        setTimeout(() => {
-            this.state.toast = {
-                visible: false,
-            };
-            this.setState(this.state);
-        }, 800);
-    }
-
-    showToast(msg, isHidden = true) {
-        this.state.toast = {
-            visible: true,
-            msg: msg,
-        };
-        this.setState(this.state);
-        if (isHidden)
-            this.hideToast();
-    }
 
     _searchBusLine() {
         if (null == this.state.text || this.state.text == '') {
-            this.showToast(Define.String.PLS_INPUT_BUS);
+            this.toastRef.showToast(Define.String.PLS_INPUT_BUS);
             return;
         }
 
         if (!Validate.checkNum(this.state.text)) {
-            this.showToast(Define.String.INPUT_INVALID);
+            this.toastRef.showToast(Define.String.INPUT_INVALID);
             return;
         }
 
@@ -106,10 +69,12 @@ export default class setup extends BaseComponent {
     qryBusStationDetail() {
         let qryId = this.state.stations[this.index].id;
         let fromStation = this.state.stations[this.index].fromStation;
+        let toStation = this.state.stations[this.index].toStation;
         this.doGet(BusQry.qryBusStationDetail(qryId), {
             op: setup.OP.STATION_DETAIL_QRY,
             id: qryId,
             fromStation: fromStation,
+            toStation: toStation,
         });
     }
 
@@ -133,18 +98,22 @@ export default class setup extends BaseComponent {
                 //     fromStation: fromStation,
                 // });
             } else {
-                this.showToast(Define.String.NO_BUS);
+                this.toastRef.showToast(Define.String.NO_BUS);
             }
         } else if (callback.op == setup.OP.STATION_DETAIL_QRY) {
+            let param = {};
             this.cache = responseData.data;
             for (let i = 0, len = this.state.stations.length; i < len; i++) {
                 let station = this.state.stations[i];
                 if (station.id == callback.id) {
-                    this.cache.forEach(function (item, index) {
-                        item.Price = station.price;
-                        item.BeginTime = station.beginTime;
-                        item.EndTime = station.endTime;
-                    });
+                    param = {
+                        beginTime: station.beginTime,
+                        endTime: station.endTime,
+                        price: station.price,
+                        fromStation: callback.fromStation,
+                        toStation: callback.toStation,
+                    }
+
                     break;
                 }
             }
@@ -154,14 +123,22 @@ export default class setup extends BaseComponent {
 
             let lineName = this.state.text + "路";
             let fromStation = callback.fromStation;
+
+            param.busName = lineName;
+
             const data = {lineName: lineName, fromStation: fromStation};
-            console.log(data);
             this.doGet(BusQry.qryBusInfo(data), {
                 op: setup.OP.BUS_INFO_QRY,
+                param: param,
             });
         } else if (callback.op == setup.OP.BUS_INFO_QRY) {
             console.log(responseData);
             let busList = responseData.data;
+
+            let param = callback.param;
+            param.busSum = busList.length;
+            this.headerRef.updateHeader(param);
+
             if (busList != null) {
                 let busInfoMap = new HashMap();
                 for (let j = 0, len = this.cache.length; j < len; j++) {
@@ -176,7 +153,7 @@ export default class setup extends BaseComponent {
                     if (index != undefined) {
                         if (this.cache[index].Name == "海虹总站") {
                             debugger;
-                            // this.showToast(JSON.stringify(newBusCache[index]), false);
+                            // this.toastRef.showToast(JSON.stringify(newBusCache[index]), false);
                         }
 
                         newBusCache[index] = {
@@ -195,7 +172,7 @@ export default class setup extends BaseComponent {
                     this.setState(this.state.dataSource);
 
             } else {
-                this.showToast(Define.String.NO_BUS_ALAIABLE);
+                this.toastRef.showToast(Define.String.NO_BUS_ALAIABLE);
             }
 
         }
@@ -217,26 +194,20 @@ export default class setup extends BaseComponent {
                 {/*onPress={() => this._searchBusLine()}>*/}
                 {/*{Define.String.SearchBus}*/}
                 {/*</Button>*/}
+                <Header visible={false} ref={headerRef => this.headerRef = headerRef}/>
                 <ListView
                     dataSource={this.state.dataSource}
                     renderRow={this.renderBusStation}
                     style={styles.listView}
                 />
-                <Toast
-                    visible={this.state.toast.visible}
-                    position={Toast.positions.CENTER}
-                    duration={Toast.durations.LONG}
-                    shadow={true}
-                    animation={true}
-                    hideOnPress={true}
-                >{this.state.toast.msg}</Toast>
+                <Toast ref={toastRef => this.toastRef = toastRef}/>
 
                 {/* Rest of the app comes ABOVE the action button component !*/}
                 <ActionButton buttonColor="rgba(231,76,60,1)">
                     <ActionButton.Item buttonColor='#9b59b6' title={Define.String.CHANGE_LINE}
                                        onPress={() => {
                                            if (this.state.stations == null || this.state.stations.length == 0) {
-                                               this.showToast(Define.String.SEARCH_FIRST);
+                                               this.toastRef.showToast(Define.String.SEARCH_FIRST);
                                                return;
                                            }
                                            if (this.index == setup.DIR.INIT) {
