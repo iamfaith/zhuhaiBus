@@ -13,17 +13,17 @@ import {
     Alert,
 } from 'react-native';
 // import Button from 'react-native-button'
-import  BusQry from './js/service/BusQry'
-import  BaseComponent from './js/common/BaseComponent'
-import  Define from './js/common/Define'
-import  BusStation from './js/model/BusStation'
-import Toast from './js/component/Toast'
-import Validate from './js/util/Validate'
-import HashMap from './js/common/HashMap'
+import  BusQry from '../service/BusQry'
+import  BaseComponent from '../common/BaseComponent'
+import  Define from '../common/Define'
+import  BusStation from '../model/BusStation'
+import Toast from '../component/Toast'
+import Validate from '../util/Validate'
+import HashMap from '../common/HashMap'
 
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Header from './js/component/Header'
+import Header from '../component/Header'
 
 export default class RealTimeSearch extends BaseComponent {
 
@@ -41,7 +41,7 @@ export default class RealTimeSearch extends BaseComponent {
     constructor(props) {
         super(props);
         this.cache = [];
-        this.index = setup.DIR.INIT; //表示方向
+        this.index = RealTimeSearch.DIR.INIT; //表示方向
         this.state = {
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 !== row2,
@@ -65,7 +65,7 @@ export default class RealTimeSearch extends BaseComponent {
         }
 
         this.doGet(BusQry.qryBusStation(this.state.text), {
-            op: setup.OP.STATION_QRY
+            op: RealTimeSearch.OP.STATION_QRY
         });
     }
 
@@ -74,7 +74,7 @@ export default class RealTimeSearch extends BaseComponent {
         let fromStation = this.state.stations[this.index].fromStation;
         let toStation = this.state.stations[this.index].toStation;
         this.doGet(BusQry.qryBusStationDetail(qryId), {
-            op: setup.OP.STATION_DETAIL_QRY,
+            op: RealTimeSearch.OP.STATION_DETAIL_QRY,
             id: qryId,
             fromStation: fromStation,
             toStation: toStation,
@@ -84,7 +84,7 @@ export default class RealTimeSearch extends BaseComponent {
     updateState(responseData) {
         super.updateState(responseData);
         let callback = responseData.callback;
-        if (callback.op == setup.OP.STATION_QRY) {
+        if (callback.op == RealTimeSearch.OP.STATION_QRY) {
             let stations = responseData.data;
             if (stations != null) {
                 this.state.stations = [];
@@ -96,14 +96,14 @@ export default class RealTimeSearch extends BaseComponent {
                 // let qryId = this.state.stations[0].id;
                 // let fromStation = this.state.stations[0].fromStation;
                 // this.doGet(BusQry.qryBusStationDetail(this.state.stations[0].id), {
-                //     op: setup.OP.STATION_DETAIL_QRY,
+                //     op: RealTimeSearch.OP.STATION_DETAIL_QRY,
                 //     id: qryId,
                 //     fromStation: fromStation,
                 // });
             } else {
                 this.toastRef.showToast(Define.String.NO_BUS);
             }
-        } else if (callback.op == setup.OP.STATION_DETAIL_QRY) {
+        } else if (callback.op == RealTimeSearch.OP.STATION_DETAIL_QRY) {
             let param = {};
             this.cache = responseData.data;
             for (let i = 0, len = this.state.stations.length; i < len; i++) {
@@ -134,18 +134,18 @@ export default class RealTimeSearch extends BaseComponent {
             const data = {lineName: lineName, fromStation: fromStation};
             console.log(data);
             this.doGet(BusQry.qryBusInfo(data), {
-                op: setup.OP.BUS_INFO_QRY,
+                op: RealTimeSearch.OP.BUS_INFO_QRY,
                 param: param,
             });
-        } else if (callback.op == setup.OP.BUS_INFO_QRY) {
+        } else if (callback.op == RealTimeSearch.OP.BUS_INFO_QRY) {
             console.log(responseData);
             let busList = responseData.data;
 
-            let param = callback.param;
-            param.busSum = busList.length;
-            this.headerRef.updateHeader(param);
-
             if (busList != null) {
+                let param = callback.param;
+                param.busSum = busList.length;
+                this.headerRef.updateHeader(param);
+
                 let busInfoMap = new HashMap();
                 for (let j = 0, len = this.cache.length; j < len; j++) {
                     busInfoMap.set(this.cache[j]["Name"], j);
@@ -190,6 +190,7 @@ export default class RealTimeSearch extends BaseComponent {
         return (
             <View style={styles.container}>
                 <TextInput
+                    placeholder={Define.String.PLS_INPUT_BUS}
                     style={styles.textInput}
                     onChangeText={(text) => this.setState({text})}
                     value={this.state.text}
@@ -216,10 +217,10 @@ export default class RealTimeSearch extends BaseComponent {
                                                this.toastRef.showToast(Define.String.SEARCH_FIRST);
                                                return;
                                            }
-                                           if (this.index == setup.DIR.INIT) {
-                                               this.index = setup.DIR.REVERT;
+                                           if (this.index == RealTimeSearch.DIR.INIT) {
+                                               this.index = RealTimeSearch.DIR.REVERT;
                                            } else {
-                                               this.index = setup.DIR.INIT;
+                                               this.index = RealTimeSearch.DIR.INIT;
                                            }
                                            this.qryBusStationDetail();
                                        }}>
