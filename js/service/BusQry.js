@@ -50,4 +50,14 @@ export default class BusQry {
         return httpClient;
     }
 
+    static qryGetLineListByLineName(key) {
+        let url = Define.URLS.ZHGetLineListByLineName;
+        let prop = {
+            url: url + key,
+            method: 'GET'
+        }
+        let httpClient = new HttpClient(prop);
+        return httpClient;
+    }
+
 }

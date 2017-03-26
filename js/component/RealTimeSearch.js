@@ -11,6 +11,7 @@ import {
     Image,
     TextInput,
     Alert,
+    TouchableOpacity,
 } from 'react-native';
 // import Button from 'react-native-button'
 import  BusQry from '../service/BusQry'
@@ -24,13 +25,15 @@ import HashMap from '../common/HashMap'
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../component/Header'
+import Autocomplete from '../component/Autocomplete'
 
 export default class RealTimeSearch extends BaseComponent {
 
     static OP = {
         STATION_QRY: '1',
         STATION_DETAIL_QRY: '2',
-        BUS_INFO_QRY: '3'
+        BUS_INFO_QRY: '3',
+        GET_BUSLIST_BYNAME: '4',
     }
 
     static DIR = {
@@ -48,28 +51,33 @@ export default class RealTimeSearch extends BaseComponent {
             }),
             text: '',
             stations: [],
-
+            qryResult: [],
         }
     }
 
 
-    _searchBusLine() {
-        if (null == this.state.text || this.state.text == '') {
+    _searchBusLine(busLine) {
+        if (null == busLine || busLine == '') {
             this.toastRef.showToast(Define.String.PLS_INPUT_BUS);
             return;
         }
-
-        if (!Validate.checkNumAndLetter(this.state.text)) {
+        let lastIndex = busLine.lastIndexOf('路');
+        if (lastIndex != -1) {
+            busLine = busLine.substr(0, lastIndex);
+        }
+        if (!Validate.checkNumAndLetter(busLine)) {
             this.toastRef.showToast(Define.String.INPUT_INVALID);
             return;
         }
 
-        this.doGet(BusQry.qryBusStation(this.state.text), {
+
+        this.doGet(BusQry.qryBusStation(busLine), {
             op: RealTimeSearch.OP.STATION_QRY
         });
     }
 
     qryBusStationDetail() {
+
         let qryId = this.state.stations[this.index].id;
         let fromStation = this.state.stations[this.index].fromStation;
         let toStation = this.state.stations[this.index].toStation;
@@ -123,7 +131,7 @@ export default class RealTimeSearch extends BaseComponent {
 
             this.state.dataSource = this.state.dataSource.cloneWithRows(this.cache),
                 this.setState(this.state.dataSource);
-            let lineName = this.state.text;
+            let lineName = String(this.state.text);
             lineName = lineName.toUpperCase();
             if (Validate.checkNum(lineName))
                 lineName = lineName + "路";
@@ -132,13 +140,11 @@ export default class RealTimeSearch extends BaseComponent {
             param.busName = lineName;
 
             const data = {lineName: lineName, fromStation: fromStation};
-            console.log(data);
             this.doGet(BusQry.qryBusInfo(data), {
                 op: RealTimeSearch.OP.BUS_INFO_QRY,
                 param: param,
             });
         } else if (callback.op == RealTimeSearch.OP.BUS_INFO_QRY) {
-            console.log(responseData);
             let busList = responseData.data;
 
             if (busList != null) {
@@ -181,19 +187,72 @@ export default class RealTimeSearch extends BaseComponent {
                 this.toastRef.showToast(Define.String.NO_BUS_ALAIABLE);
             }
 
+        } else if (callback.op == RealTimeSearch.OP.GET_BUSLIST_BYNAME) {
+            if (responseData == undefined) {
+                this.state.qryResult = [];
+                this.setState(this.state);
+                return;
+            }
+            let busList = responseData.data
+            if (busList == undefined) {
+                this.state.qryResult = [];
+                this.setState(this.state);
+                return;
+            }
+            let len = busList.length;
+            if (len > 0) {
+                let qryResult = [];
+                for (let i = 0; i < len; i++) {
+                    qryResult.push({
+                        LineNumber: busList[i]["LineNumber"],
+                        Direction: busList[i]["FromStation"] + " => " + busList[i]["ToStation"]
+                    });
+                }
+                this.state.qryResult = qryResult;
+                this.setState(this.state);
+            }
+
         }
 
     }
 
-    render() {
+    queryBusData(data) {
+        this.doGet(BusQry.qryGetLineListByLineName(data), {
+            op: RealTimeSearch.OP.GET_BUSLIST_BYNAME,
+        });
 
+        // if (data == '10')
+        //     return [10, 3, 23, 22];
+        // else {
+        //     return [];
+        // }
+    }
+
+    render() {
         return (
             <View style={styles.container}>
-                <TextInput
-                    placeholder={Define.String.PLS_INPUT_BUS}
-                    style={styles.textInput}
-                    onChangeText={(text) => this.setState({text})}
-                    value={this.state.text}
+                <Autocomplete ref={autoCompleteRef => this.autoCompleteRef = autoCompleteRef }
+                              data={this.state.qryResult}
+                              defaultValue={this.state.text}
+                              autoCapitalize="none"
+                              placeholder={Define.String.PLS_INPUT_BUS}
+                              onChangeText={text => {
+                                  this.state.text = text;
+                                  this.queryBusData(text);
+                                  this.setState(this.state);
+                              }}
+                              value={String(this.state.text)}
+                              listContainerStyle={styles.overlay}
+                              renderItem={(data) => (
+                                  <TouchableOpacity onPress={() => {
+                                      this.state.text = data.LineNumber;
+                                      this.state.qryResult = [];
+                                      this.setState(this.state);
+                                      this._searchBusLine(this.state.text);
+                                  }}>
+                                      <Text>{data.LineNumber + "    " + data.Direction}</Text>
+                                  </TouchableOpacity>
+                              )}
                 />
                 {/*<Button*/}
                 {/*style={styles.searchButton}*/}
@@ -228,7 +287,7 @@ export default class RealTimeSearch extends BaseComponent {
                         <Icon name="md-shuffle" style={styles.actionButtonIcon}/>
                     </ActionButton.Item>
                     <ActionButton.Item buttonColor='#3498db' title={Define.String.SEARCH} onPress={() => {
-                        this._searchBusLine();
+                        this._searchBusLine(this.state.text);
                     }}>
                         <Icon name="md-search" style={styles.actionButtonIcon}/>
                     </ActionButton.Item>
@@ -305,4 +364,14 @@ const styles = StyleSheet.create({
         height: 22,
         color: 'white',
     },
+
+
+    overlay: {
+        zIndex: 1,
+        position: 'absolute',
+        opacity: 0.9,
+        top: 35,
+        flex: 1,
+        flexDirection: 'row'
+    }
 });

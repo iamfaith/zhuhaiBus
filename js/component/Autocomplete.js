@@ -64,8 +64,20 @@ class Autocomplete extends Component {
     static defaultProps = {
         data: [],
         defaultValue: '',
-        renderItem: rowData => <Text>{rowData}</Text>,
-        renderSeparator: null,
+        renderItem: rowData => (
+            <Text>{rowData}</Text>
+        ),
+        renderSeparator: function (sectionID, rowID, adjacentRowHighlighted) {
+            return (
+                <View
+                    key={`${sectionID}-${rowID}`}
+                    style={{
+                        height: adjacentRowHighlighted ? 4 : 1,
+                        backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
+                    }}
+                />
+            );
+        },
         renderTextInput: props => <TextInput {...props} />
     };
 
@@ -73,7 +85,10 @@ class Autocomplete extends Component {
         super(props);
 
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.state = {dataSource: ds.cloneWithRows(props.data)};
+        this.state = {
+            dataSource: ds.cloneWithRows(props.data),
+            // resultListVisible: true,
+        };
     }
 
     componentWillReceiveProps({data}) {
@@ -95,6 +110,12 @@ class Autocomplete extends Component {
     focus() {
         const {textInput} = this;
         textInput && textInput.focus();
+    }
+
+    clearResultList() {
+        console.warn(this.state.dataSource);
+        this.state.dataSource = this.state.dataSource.cloneWithRows(Autocomplete.defaultProps.data);
+        this.setState(this.state.dataSource);
     }
 
     renderResultList() {
@@ -123,6 +144,7 @@ class Autocomplete extends Component {
 
         return renderTextInput(props);
     }
+
 
     render() {
         const {dataSource} = this.state;
@@ -158,7 +180,7 @@ const border = {
 
 const androidStyles = {
     container: {
-        flex: 1
+        // flex: 1
     },
     inputContainer: {
         ...border,
