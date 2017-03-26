@@ -18,6 +18,7 @@ export default class Define {
         NO_BUS_ALAIABLE: '该线路公交不在运营或者输入有误',
         NO_BUS: '找不到该公交线路',
         SEARCH: '查询',
+        CLOCK: '定时',
         CHANGE_LINE: '切换',
         SEARCH_FIRST: '请先点击查询再进行切换路线',
         REAL_TIME_SEARCH: '实时查询',

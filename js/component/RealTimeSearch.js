@@ -21,7 +21,7 @@ import  BusStation from '../model/BusStation'
 import Toast from '../component/Toast'
 import Validate from '../util/Validate'
 import HashMap from '../common/HashMap'
-
+import BackgroundTimer from 'react-native-background-timer';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../component/Header'
@@ -57,6 +57,7 @@ export default class RealTimeSearch extends BaseComponent {
 
 
     _searchBusLine(busLine) {
+
         if (null == busLine || busLine == '') {
             this.toastRef.showToast(Define.String.PLS_INPUT_BUS);
             return;
@@ -76,10 +77,10 @@ export default class RealTimeSearch extends BaseComponent {
         });
     }
 
-    qryBusStationDetail() {
+    qryBusStationDetail(from = null) {
 
         let qryId = this.state.stations[this.index].id;
-        let fromStation = this.state.stations[this.index].fromStation;
+        let fromStation = from == null ? this.state.stations[this.index].fromStation : from;
         let toStation = this.state.stations[this.index].toStation;
         this.doGet(BusQry.qryBusStationDetail(qryId), {
             op: RealTimeSearch.OP.STATION_DETAIL_QRY,
@@ -94,6 +95,7 @@ export default class RealTimeSearch extends BaseComponent {
         let callback = responseData.callback;
         if (callback.op == RealTimeSearch.OP.STATION_QRY) {
             let stations = responseData.data;
+            // console.warn(stations);
             if (stations != null) {
                 this.state.stations = [];
                 for (let i = 0, len = stations.length; i < len; i++) {
@@ -228,6 +230,12 @@ export default class RealTimeSearch extends BaseComponent {
         // }
     }
 
+    componentWillUnMount() {
+        // 如果你使用多个timer，那么用多个变量，或者用个数组来保存引用，然后逐个clear
+        // this.timer && clearInterval(this.timer);
+        BackgroundTimer.clearInterval(this.intervalId);
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -245,6 +253,7 @@ export default class RealTimeSearch extends BaseComponent {
                               listContainerStyle={styles.overlay}
                               renderItem={(data) => (
                                   <TouchableOpacity onPress={() => {
+                                      this.intervalId && BackgroundTimer.clearInterval(this.intervalId);
                                       this.state.text = data.LineNumber;
                                       this.state.qryResult = [];
                                       this.setState(this.state);
@@ -270,6 +279,14 @@ export default class RealTimeSearch extends BaseComponent {
 
                 {/* Rest of the app comes ABOVE the action button component !*/}
                 <ActionButton buttonColor="rgba(231,76,60,1)">
+                    <ActionButton.Item buttonColor='#1abc9c' title={Define.String.CLOCK} onPress={() => {
+                        this.intervalId = BackgroundTimer.setInterval(() => {
+                            this._searchBusLine(this.state.text);
+                        }, 3000);
+
+                    }}>
+                        <Icon name="md-clock" style={styles.actionButtonIcon}/>
+                    </ActionButton.Item>
                     <ActionButton.Item buttonColor='#9b59b6' title={Define.String.CHANGE_LINE}
                                        onPress={() => {
                                            if (this.state.stations == null || this.state.stations.length == 0) {
