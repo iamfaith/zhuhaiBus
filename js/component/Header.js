@@ -70,14 +70,14 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#F5FCFF',
+        backgroundColor: '#FA901E',
     },
 
     headerText: {
         fontSize: 30,
         textAlign: 'center',
         color: 'white',
-        backgroundColor: 'rgba(231,76,60,1)'
+        backgroundColor: 'rgba(231,76,60,0.6)'
     },
     directionText: {
         fontSize: 25,

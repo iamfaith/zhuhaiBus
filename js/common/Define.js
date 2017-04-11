@@ -24,6 +24,7 @@ export default class Define {
         REAL_TIME_SEARCH: '实时查询',
         TRANSFER_BUS: '换乘查询',
         SEARCH_GOV_BIKE: '绿色出行',
+        SETTING: '设置'
         // WORKING_BUS: `(${busSum}辆公交在行驶中)`,
         // BUS_INFO: `首班车: ${busInfo.beginTime} 末班车: {$busInfo.endTime} 票价: {busInfo.price}元`
     }

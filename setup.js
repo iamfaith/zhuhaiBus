@@ -23,8 +23,8 @@ export default class setup extends Component {
             <ScrollableTabView
                 renderTabBar={() => <DefaultTabBar backgroundColor='rgba(255, 255, 255, 0.7)'/>}>
                 <RealTimeSearch tabLabel={Define.String.REAL_TIME_SEARCH} />
-                <Text tabLabel={Define.String.TRANSFER_BUS} />
                 <Text tabLabel={Define.String.SEARCH_GOV_BIKE}  />
+                <Text tabLabel={Define.String.SETTING} />
             </ScrollableTabView>
         );
     }

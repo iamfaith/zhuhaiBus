@@ -324,6 +324,7 @@ export default class RealTimeSearch extends BaseComponent {
         return (
             <View style={styles.container}>
                 <View style={styles.rightContainer}>
+                    <Icon name="md-bus" style={styles.actionBusIcon}/>
                     <Text style={styles.title}>{data.Name}</Text>
 
                     <Text style={styles.busNumber}>{data.BusNumber}</Text>
@@ -365,22 +366,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         backgroundColor: 'white',
-        borderColor: '#F5FCFF',
+        borderColor: '#f5fcff',
         borderWidth: 2,
     },
     title: {
         fontSize: 20,
         marginBottom: 8,
         textAlign: 'center',
+        flex: 2,
     },
     busNumber: {
         color: 'blue',
         fontSize: 20,
         marginBottom: 8,
         textAlign: 'center',
+        flex: 1,
     },
     listView: {
-        backgroundColor: '#F5FCFF',
+        backgroundColor: '#e8e8e8',
     },
 
     actionButtonIcon: {
@@ -389,6 +392,11 @@ const styles = StyleSheet.create({
         color: 'white',
     },
 
+    actionBusIcon: {
+        fontSize: 25,
+        height: 25,
+        flex: 1,
+    },
 
     overlay: {
         zIndex: 1,
