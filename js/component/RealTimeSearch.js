@@ -168,10 +168,6 @@ export default class RealTimeSearch extends BaseComponent {
                     let busInfo = busList[i];
                     let index = busInfoMap.get(busInfo["CurrentStation"]);
                     if (index != undefined) {
-                        if (this.cache[index].Name == "海虹总站") {
-                            debugger;
-                            // this.toastRef.showToast(JSON.stringify(newBusCache[index]), false);
-                        }
 
                         newBusCache[index] = {
                             BusNumber: newBusCache[index]["BusNumber"] == null || newBusCache[index]["BusNumber"] == undefined ? busInfo["BusNumber"] : newBusCache[index]["BusNumber"] + " " + busInfo["BusNumber"],
@@ -185,8 +181,8 @@ export default class RealTimeSearch extends BaseComponent {
 
                 }
 
-                this.state.dataSource = this.state.dataSource.cloneWithRows(newBusCache),
-                    this.setState(this.state.dataSource);
+                this.state.dataSource = this.state.dataSource.cloneWithRows(newBusCache);
+                this.setState(this.state.dataSource);
 
             } else {
                 this.toastRef.showToast(Define.String.NO_BUS_ALAIABLE);
@@ -321,10 +317,14 @@ export default class RealTimeSearch extends BaseComponent {
     }
 
     renderBusStation(data) {
+        let isHidden = true;
+        if (data.BusNumber != null && data.BusNumber != undefined) {
+            isHidden = false;
+        }
         return (
             <View style={styles.container}>
                 <View style={styles.rightContainer}>
-                    <Icon name="md-bus" style={styles.actionBusIcon}/>
+                    <Icon ref="busIcon" name="md-bus" style={[styles.actionBusIcon, !isHidden && {height: 25}]}/>
                     <Text style={styles.title}>{data.Name}</Text>
 
                     <Text style={styles.busNumber}>{data.BusNumber}</Text>
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
 
     actionBusIcon: {
         fontSize: 25,
-        height: 25,
+        height: 0,
         flex: 1,
     },
 
