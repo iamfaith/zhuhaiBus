@@ -15,6 +15,7 @@ import {
 import ScrollableTabView, {DefaultTabBar, ScrollableTabBar}from 'react-native-scrollable-tab-view'
 import  RealTimeSearch from './js/component/RealTimeSearch'
 import  WebView from './js/component/BusWebView'
+import  MySetting from './js/component/MySetting'
 import Define from './js/common/Define'
 // import Tabs from 'react-native-tabs';
 export default class setup extends Component {
@@ -32,7 +33,7 @@ export default class setup extends Component {
             >
                 <RealTimeSearch tabLabel={Define.String.REAL_TIME_SEARCH} />
                 <WebView tabLabel={Define.String.SEARCH_GOV_BIKE}  />
-                <Text tabLabel={Define.String.SETTING} />
+                <MySetting tabLabel={Define.String.SETTING} />
             </ScrollableTabView>
             // <Tabs  style={{backgroundColor: 'white'}}
             //       selectedStyle={{color: 'red'}} >
