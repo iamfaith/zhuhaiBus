@@ -56,7 +56,7 @@ export default class RealTimeSearch extends BaseComponent {
     }
 
 
-    _searchBusLine(busLine) {
+    _searchBusLine(busLine, busId = null, from = null, to = null) {
 
         if (null == busLine || busLine == '') {
             this.toastRef.showToast(Define.String.PLS_INPUT_BUS);
@@ -73,15 +73,18 @@ export default class RealTimeSearch extends BaseComponent {
 
 
         this.doGet(BusQry.qryBusStation(busLine), {
-            op: RealTimeSearch.OP.STATION_QRY
+            op: RealTimeSearch.OP.STATION_QRY,
+            Id: busId,
+            FromStation: from,
+            ToStation: to,
         });
     }
 
-    qryBusStationDetail(from = null) {
+    qryBusStationDetail(from = null, to = null, busId = null) {
 
-        let qryId = this.state.stations[this.index].id;
+        let qryId = busId == null ? this.state.stations[this.index].id : busId;
         let fromStation = from == null ? this.state.stations[this.index].fromStation : from;
-        let toStation = this.state.stations[this.index].toStation;
+        let toStation = to == null ? this.state.stations[this.index].toStation : to;
         this.doGet(BusQry.qryBusStationDetail(qryId), {
             op: RealTimeSearch.OP.STATION_DETAIL_QRY,
             id: qryId,
@@ -95,14 +98,14 @@ export default class RealTimeSearch extends BaseComponent {
         let callback = responseData.callback;
         if (callback.op == RealTimeSearch.OP.STATION_QRY) {
             let stations = responseData.data;
-            // console.warn(stations);
+            // console.log(stations == null ? "" : stations);
             if (stations != null) {
                 this.state.stations = [];
                 for (let i = 0, len = stations.length; i < len; i++) {
                     let busStation = new BusStation(stations[i]);
                     this.state.stations.push(busStation);
                 }
-                this.qryBusStationDetail();
+                this.qryBusStationDetail(callback.FromStation, callback.ToStation, callback.Id);
                 // let qryId = this.state.stations[0].id;
                 // let fromStation = this.state.stations[0].fromStation;
                 // this.doGet(BusQry.qryBusStationDetail(this.state.stations[0].id), {
@@ -196,7 +199,7 @@ export default class RealTimeSearch extends BaseComponent {
                 return;
             }
             let busList = responseData.data
-            if (busList == undefined) {
+            if (busList == undefined || busList == null) {
                 this.state.qryResult = [];
                 this.setState(this.state);
                 return;
@@ -205,8 +208,12 @@ export default class RealTimeSearch extends BaseComponent {
             if (len > 0) {
                 let qryResult = [];
                 for (let i = 0; i < len; i++) {
+                    // console.log("busList " + busList[i] == null ? "" : busList[i]);
                     qryResult.push({
+                        Id: busList[i]["Id"],
                         LineNumber: busList[i]["LineNumber"],
+                        FromStation: busList[i]["FromStation"],
+                        ToStation: busList[i]["ToStation"],
                         Direction: busList[i]["FromStation"] + " => " + busList[i]["ToStation"]
                     });
                 }
@@ -257,7 +264,7 @@ export default class RealTimeSearch extends BaseComponent {
                                       this.state.text = data.LineNumber;
                                       this.state.qryResult = [];
                                       this.setState(this.state);
-                                      this._searchBusLine(this.state.text);
+                                      this._searchBusLine(this.state.text, data.Id, data.FromStation, data.ToStation);
                                   }}>
                                       <Text>{data.LineNumber + "    " + data.Direction}</Text>
                                   </TouchableOpacity>
