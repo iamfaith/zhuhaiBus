@@ -32,7 +32,7 @@ export default class setup extends Component {
                 locked={true}
             >
                 <RealTimeSearch tabLabel={Define.String.REAL_TIME_SEARCH} />
-                <WebView tabLabel={Define.String.SEARCH_GOV_BIKE}  />
+                {/*<WebView tabLabel={Define.String.SEARCH_GOV_BIKE}  />*/}
                 <MySetting tabLabel={Define.String.SETTING} />
             </ScrollableTabView>
             // <Tabs  style={{backgroundColor: 'white'}}
