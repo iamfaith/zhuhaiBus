@@ -262,7 +262,7 @@ export default class RealTimeSearch extends BaseComponent {
                                       this.setState(this.state);
                                       this._searchBusLine(this.state.text, data.Id, data.FromStation, data.ToStation);
                                   }}>
-                                      <Text>{data.LineNumber + "    " + data.Direction}</Text>
+                                      <Text style={{fontSize: 20}}>{data.LineNumber + "    " + data.Direction}</Text>
                                   </TouchableOpacity>
                               )}
                 />
@@ -373,14 +373,14 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginBottom: 8,
         textAlign: 'center',
-        flex: 2,
+        flex: 5,
     },
     busNumber: {
         color: 'blue',
         fontSize: 20,
         marginBottom: 8,
         textAlign: 'center',
-        flex: 1,
+        flex: 3,
     },
     listView: {
         backgroundColor: '#e8e8e8',
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     actionBusIcon: {
         fontSize: 25,
         height: 0,
-        flex: 1,
+        flex: 2,
     },
 
     overlay: {
